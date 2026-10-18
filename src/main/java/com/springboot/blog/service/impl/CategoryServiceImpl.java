@@ -25,6 +25,8 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public CategoryDto addCategory(CategoryDto categoryDto) {
         Category category = modelMapper.map(categoryDto, Category.class);
+        // always insert a new row, even if the client sent an id
+        category.setId(null);
         Category savedCategory = categoryRepository.save(category);
 
         return modelMapper.map(savedCategory, CategoryDto.class);

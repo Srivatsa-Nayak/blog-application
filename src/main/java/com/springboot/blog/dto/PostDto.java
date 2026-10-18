@@ -2,9 +2,11 @@ package com.springboot.blog.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.Set;
 
 @Getter
@@ -31,5 +33,14 @@ public class PostDto {
 
     private Set<CommentDto> comments;
 
+    @NotNull(message = "categoryId should not be empty")
     private Long categoryId;
+
+    private String categoryName;
+
+    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
+    private LocalDateTime createdAt;
+
+    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
+    private LocalDateTime updatedAt;
 }

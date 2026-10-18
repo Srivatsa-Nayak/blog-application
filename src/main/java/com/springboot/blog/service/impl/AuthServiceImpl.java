@@ -1,5 +1,6 @@
 package com.springboot.blog.service.impl;
 
+import com.springboot.blog.dto.JwtAuthResponse;
 import com.springboot.blog.dto.LoginDto;
 import com.springboot.blog.dto.RegisterDto;
 import com.springboot.blog.entity.Role;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class AuthServiceImpl implements AuthService {
@@ -38,12 +40,21 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public String login(LoginDto loginDto) {
+    public JwtAuthResponse login(LoginDto loginDto) {
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                 loginDto.getUsernameOrEmail(), loginDto.getPassword()));
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        return jwtTokenProvider.generateToken(authentication);
+        JwtAuthResponse response = new JwtAuthResponse();
+        response.setAccessToken(jwtTokenProvider.generateToken(authentication));
+        userRepository.findByUsernameOrEmail(loginDto.getUsernameOrEmail(), loginDto.getUsernameOrEmail())
+                .ifPresent(user -> {
+                    response.setName(user.getName());
+                    response.setUsername(user.getUsername());
+                    response.setEmail(user.getEmail());
+                    response.setRoles(user.getRoles().stream().map(Role::getName).collect(Collectors.toSet()));
+                });
+        return response;
     }
 
     @Override
@@ -63,7 +74,8 @@ public class AuthServiceImpl implements AuthService {
         user.setPassword(passwordEncoder.encode(registerDto.getPassword()));
 
         Set<Role> roles = new HashSet<>();
-        Role userRole = roleRepository.findByName("ROLE_USER").get();
+        Role userRole = roleRepository.findByName("ROLE_USER")
+                .orElseThrow(() -> new BlogApiException(HttpStatus.INTERNAL_SERVER_ERROR, "Default role ROLE_USER is missing"));
         roles.add(userRole);
         user.setRoles(roles);
         userRepository.save(user);
