@@ -32,7 +32,7 @@ public class PostController {
     // create blog post rest api
     @Operation(
             summary = "Create a POST Rest API",
-            description = "This API is used to create and save a post to MYSQL database"
+            description = "This API is used to create and save a post to the database"
     )
     @ApiResponse(
             responseCode = "201",
@@ -50,7 +50,7 @@ public class PostController {
     // get all posts rest api
     @Operation(
             summary = "Get all POST Rest API",
-            description = "This API is used to fetch all the saved posts from MYSQL database"
+            description = "This API is used to fetch all the saved posts from the database"
     )
     @ApiResponse(
             responseCode = "200",
@@ -67,7 +67,8 @@ public class PostController {
     }
 
     // get post by id rest api
-    @GetMapping(value = "/api/posts/v1/{id}")
+    // "/api/posts/v1/{id}" is kept for backwards compatibility, it was not covered by the public GET rule
+    @GetMapping(value = {"/api/v1/posts/{id}", "/api/posts/v1/{id}"})
     public ResponseEntity<PostDto> getPostById(@PathVariable(name = "id") long id) {
         return ResponseEntity.ok(postService.getPostById(id));
     }

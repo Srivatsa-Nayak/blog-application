@@ -8,6 +8,6 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface CommentRepository extends JpaRepository<Comment, Long> {
-    @Query(value = "SELECT * FROM comments WHERE post_id = :postId", nativeQuery = true)
+    @Query(value = "SELECT * FROM comments WHERE post_id = :postId ORDER BY id", nativeQuery = true)
     List<Comment> findByPostId(@Param("postId") long postId);
 }
